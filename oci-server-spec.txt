@@ -1,0 +1,123 @@
+# OCI Free Tier Production Server Spec (Windows Dev → Server Deploy)
+# Feed this to your AI coding agent for every new project eg : "Create Django CRM following this OCI production server spec"
+
+## SERVER SPECS
+Platform: OCI Free Tier ARM64 (VM.Standard.A1.Flex)
+IP: 129.159.26.245 (primary)
+OS: Ubuntu 22.04 ARM64
+User: ubuntu
+Resources: 2 OCPU, 12GB RAM, 50GB disk
+
+## DIRECTORY STRUCTURE (on server)
+/home/ubuntu/projects/[PROJECT-NAME]/    # App code
+/var/www/[PROJECT-NAME]/                # Static files
+/etc/nginx/sites-available/[PROJECT-NAME] # Nginx config
+/etc/supervisor/conf.d/[PROJECT-NAME].conf # Supervisor
+
+## PORT ALLOCATION
+Django/Python: 8000-8099
+Node.js: 3000-3099
+Go: 5000-5099
+Dashboards: 8080-8089
+Scrapers: 9000-9099
+
+## EVERY NEW PROJECT NEEDS (AI Generate These Files)
+
+1. PROJECT STRUCTURE (Windows local):
+[project-name]/
+├── .env.example          # Template (copy to .env)
+├── .gitignore
+├── requirements.txt      # OR package.json / go.mod
+├── start.sh              # Server startup (chmod +x)
+├── deploy.sh             # One-click server deploy
+├── nginx-[project].conf  # Nginx template
+├── supervisor-[project].conf
+└── [source code]
+
+2. start.sh TEMPLATE:
+#!/bin/bash
+# Example Django
+cd /home/ubuntu/projects/[project]
+source venv/bin/activate
+gunicorn --workers=2 --bind=0.0.0.0:8000 [project].wsgi
+
+3. deploy.sh TEMPLATE:
+#!/bin/bash
+# Run on server after git clone/scp
+sudo cp nginx-[project] /etc/nginx/sites-available/[project]
+sudo ln -sf /etc/nginx/sites-available/[project] /etc/nginx/sites-enabled/
+sudo cp supervisor-[project].conf /etc/supervisor/conf.d/
+sudo supervisorctl reread && sudo supervisorctl update
+sudo nginx -t && sudo systemctl reload nginx
+sudo supervisorctl start [project]
+echo "✅ Deployed: https://[subdomain].yourdomain.com"
+
+4. nginx-[project].conf TEMPLATE:
+server {
+    listen 80;
+    server_name [subdomain].yourdomain.com;
+    location / {
+        proxy_pass http://127.0.0.1:[PORT];
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+5. supervisor-[project].conf TEMPLATE:
+[program:[project]]
+command=/home/ubuntu/projects/[project]/start.sh
+directory=/home/ubuntu/projects/[project]
+user=ubuntu
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/[project]-out.log
+stderr_logfile=/var/log/supervisor/[project]-err.log
+
+## DEPLOYMENT WORKFLOW (Windows → OCI)
+1. Windows: AI creates project with above files
+2. Windows: git push to GitHub OR scp to server
+3. OCI Server: cd ~/projects/[project] && ./deploy.sh
+4. DNS: [subdomain].yourdomain.com → 129.159.26.245
+5. SSL: sudo certbot --nginx -d [subdomain].yourdomain.com
+
+## RESOURCE LIMITS PER PROJECT
+Django CRM: 1GB RAM, 30% CPU
+Portfolio (static): 50MB, 5% CPU
+Discord/Telegram Bot: 100MB each, 5% CPU
+Scraper: 2GB max, 50% CPU
+
+## DOMAIN ROUTING
+All domains point to 129.159.26.245
+Nginx reads Host header → routes to correct app/port
+
+## SECURITY
+- .env for secrets (never commit)
+- HTTPS mandatory (certbot)
+- Input validation
+- Rate limiting
+- Dependency updates
+
+## MONITORING COMMANDS
+sudo supervisorctl status
+htop
+sudo nginx -t
+sudo tail -f /var/log/supervisor/[project]-out.log
+
+## EXAMPLE PROJECT TYPES
+Django: port 8000, venv, gunicorn 2 workers
+Node.js: port 3000, npm start
+Go: port 5000, go build → ./app
+Static: /var/www/[project], no proxy
+Bot: no port, screen/supervisor
+Scraper: port 9000 optional dashboard
+
+## QUICK DEPLOY CHECKLIST
+□ AI generates project with 6 files (.env.example, start.sh, deploy.sh, nginx.conf, supervisor.conf, README)
+□ Git push / SCP to ~/projects/[project]
+□ chmod +x *.sh
+□ ./deploy.sh
+□ DNS A record
+□ certbot --nginx
+□ Test: curl -H "Host: subdomain" http://localhost
+
+FEED THIS SPEC TO AI: "Create [PROJECT TYPE] following this OCI server spec"

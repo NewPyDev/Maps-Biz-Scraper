@@ -1,0 +1,65 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+business_scraper.egg-info/
+
+# Environment
+.env
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+
+# Proxies (dynamic, user-specific)
+proxies.txt
+proxies.txt.backup
+
+# Debug files
+debug_*.py
+debug_*.png
+debug_*.html
+page_source*.html
+
+# Old data & exports
+old data/
+exports/
+export_*.csv
+downloaded_files/
+
+# Editor settings
+.vscode/
+.idea/
+.DS_Store
+
+# Testing/cache
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Playwright browsers
+.playwright/
+
+# Archives
+*.zip
+
+# Deployment keys/lock files
+uv.lock
+
+# Temporary/test scripts
+add_test_job.py
+test_bulk_add.py
+start_scraper_directly.py
+check_progress.py
+check_queue.py

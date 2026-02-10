@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% set active_page = "dashboard" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📊 Dashboard</h2>
+    <p>Overview of your lead generation business</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Leads</div>
+        <div class="stat-value" id="totalBusinesses">{{ "{:,}".format(stats.total_businesses) }}</div>
+        <div class="stat-sub">In database</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">With Website</div>
+        <div class="stat-value" id="withWebsite" style="color: var(--success);">{{ "{:,}".format(stats.with_website) }}
+        </div>
+        <div class="stat-sub">{{ "%.1f"|format((stats.with_website / stats.total_businesses * 100) if
+            stats.total_businesses > 0 else 0) }}% of total</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Without Website</div>
+        <div class="stat-value" id="withoutWebsite" style="color: var(--warning);">{{
+            "{:,}".format(stats.without_website) }}</div>
+        <div class="stat-sub">Premium leads</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Pending Jobs</div>
+        <div class="stat-value" id="pendingJobs" style="color: var(--info);">{{ stats.jobs.get('pending', 0) }}</div>
+        <div class="stat-sub">Ready to scrape</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">⚡ Quick Actions</span>
+    </div>
+    <div class="btn-group">
+        <a href="/scraping" class="btn btn-accent">🔄 Start Scraping</a>
+        <a href="/export" class="btn btn-success">📦 Export Data</a>
+    </div>
+</div>
+
+<!-- Recent Jobs -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">📋 Recent Jobs</span>
+    </div>
+    {% if recent_jobs %}
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Leads</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in recent_jobs[:10] %}
+            <tr>
+                <td>{{ job.category }}</td>
+                <td>{{ job.city }}, {{ job.country }}</td>
+                <td>
+                    {% if job.status == 'completed' %}
+                    <span class="badge badge-success">Completed</span>
+                    {% elif job.status == 'running' %}
+                    <span class="badge badge-info">Running</span>
+                    {% elif job.status == 'failed' %}
+                    <span class="badge badge-danger">Failed</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </td>
+                <td>{{ job.businesses_found or 0 }}</td>
+                <td>{{ job.completed_at or job.started_at or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--text-muted); text-align: center; padding: 30px;">
+        No jobs yet. <a href="/scraping" style="color: var(--accent);">Add some jobs</a> to get started!
+    </p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Live-update stats every 10 seconds
+    setInterval(() => {
+        fetch('/api/stats')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('totalBusinesses').textContent = data.total_businesses.toLocaleString();
+                document.getElementById('withWebsite').textContent = data.with_website.toLocaleString();
+                document.getElementById('withoutWebsite').textContent = (data.total_businesses - data.with_website).toLocaleString();
+                const pending = data.jobs?.pending || 0;
+                document.getElementById('pendingJobs').textContent = pending;
+            })
+            .catch(() => { });
+    }, 10000);
+</script>
+{% endblock %}

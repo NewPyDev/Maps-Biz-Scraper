@@ -1,0 +1,7 @@
+another scraper that dopwnloads free proxies *
+a tester that tests the downloaded free proxies
+the working proxies are saved and used by the main app
+the second scraper should run everyday 2-5 times a day to get as much proxies as possible
+the app must be ready to launch from an Oracle Cloud Free teirs instance
+
+

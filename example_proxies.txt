@@ -1,0 +1,14 @@
+# Example proxy file format
+# Copy this to proxies.txt and add your real proxies
+
+# HTTP proxies
+# http://123.45.67.89:8080
+# http://98.76.54.32:3128
+
+# HTTP proxies with authentication
+# http://username:password@proxy.example.com:8080
+
+# SOCKS5 proxies
+# socks5://123.45.67.89:1080
+
+# Add one proxy per line (remove the # comment symbol)
