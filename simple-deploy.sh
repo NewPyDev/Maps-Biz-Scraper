@@ -130,7 +130,7 @@ sudo mkdir -p /etc/supervisor/conf.d
 
 sudo tee /etc/supervisor/conf.d/business-scraper.conf > /dev/null << EOF
 [program:business-scraper]
-command=$PROJECT_DIR/venv/bin/python $PROJECT_DIR/dashboard.py
+command=$PROJECT_DIR/venv/bin/python $PROJECT_DIR/app.py
 directory=$PROJECT_DIR
 user=$USER
 autostart=true
