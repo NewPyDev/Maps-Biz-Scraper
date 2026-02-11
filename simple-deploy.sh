@@ -61,6 +61,17 @@ EOF
 
 # Setup Nginx
 echo "🌐 Configuring Nginx..."
+
+# Ensure Nginx is installed
+if ! command -v nginx &> /dev/null; then
+    echo "❌ Nginx not found. Attempting to install..."
+    sudo apt install -y nginx
+fi
+
+# Ensure directories exist (fixes missing directory error)
+sudo mkdir -p /etc/nginx/sites-available
+sudo mkdir -p /etc/nginx/sites-enabled
+
 sudo tee /etc/nginx/sites-available/business-scraper > /dev/null << EOF
 server {
     listen 80;
@@ -99,6 +110,16 @@ sudo systemctl restart nginx
 
 # Setup Supervisor
 echo "👷 Configuring Supervisor..."
+
+# Ensure Supervisor is installed
+if ! command -v supervisorctl &> /dev/null; then
+    echo "❌ Supervisor not found. Attempting to install..."
+    sudo apt install -y supervisor
+fi
+
+# Ensure config directory exists
+sudo mkdir -p /etc/supervisor/conf.d
+
 sudo tee /etc/supervisor/conf.d/business-scraper.conf > /dev/null << EOF
 [program:business-scraper]
 command=$PROJECT_DIR/venv/bin/python $PROJECT_DIR/dashboard.py
