@@ -46,13 +46,17 @@ class Settings(BaseSettings):
     # Export Configuration
     export_dir: Path = Path("exports")
 
-    # Security (Optional - for future authentication)
-    admin_username: str = Field(default="admin", env="ADMIN_USERNAME")
-    admin_password: str = Field(default="", env="ADMIN_PASSWORD")
-    require_auth: bool = Field(default=True, env="REQUIRE_AUTH")
-    secret_key: str = "change-this-in-production"
+    # Security
+    admin_username: str
+    admin_password: str
+    require_auth: bool
+    secret_key: str
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "case_sensitive": False}
+    # Debug / Extra
+    debug: bool = False
+    stuck_threshold_seconds: int = 600
+
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "case_sensitive": False, "extra": "ignore"}
 
 
 # Global settings instance
