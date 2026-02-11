@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     admin_username: str
     admin_password: str
     require_auth: bool
-    secret_key: str
+    secret_key: str = "change-this-in-production"
 
     # Debug / Extra
     debug: bool = False
