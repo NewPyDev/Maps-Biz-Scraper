@@ -28,6 +28,7 @@ source venv/bin/activate
 echo "📚 Installing Python packages..."
 pip install --upgrade pip
 pip install -r requirements.txt
+playwright install chromium
 
 # Create .env file if it doesn't exist
 # Create or update .env file (Forces update with new credentials)
