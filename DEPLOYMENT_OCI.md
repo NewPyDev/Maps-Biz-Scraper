@@ -65,7 +65,29 @@ sudo systemctl restart business-scraper
 ```
 
 ## 🛠 Troubleshooting
+
+### 1. "Welcome to Nginx" Page
+If you see the default "Success!" or "Welcome to Nginx" page instead of the dashboard:
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+sudo systemctl restart nginx
+```
+
+### 2. "502 Bad Gateway"
+This means the Python application (Supervisor) is not running.
+Check logs:
+```bash
+sudo tail -f /var/log/supervisor/business-scraper-error.log
+```
+
+### 3. "Internal Server Error"
+Check application logs:
+```bash
+sudo tail -f /var/log/supervisor/business-scraper.log
+```
+
+### 4. General Issues
 If the site won't load:
-1.  Check if the service is running: `sudo systemctl status business-scraper`
-2.  Check the logs: `journalctl -u business-scraper -f`
-3.  Double-check the **OCI Security List** (Step 4B) — this is the #1 reason for failure!
+*   Check if the service is running: `sudo systemctl status business-scraper`
+*   Check the logs: `journalctl -u business-scraper -f`
+*   Double-check the **OCI Security List** (Step 4B) — this is the #1 reason for failure!
