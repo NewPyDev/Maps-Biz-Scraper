@@ -30,9 +30,9 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # Create .env file if it doesn't exist
-if [ ! -f .env ]; then
-    echo "⚙️ Creating .env file..."
-    cat > .env << EOF
+# Create or update .env file (Forces update with new credentials)
+echo "⚙️ Configuring environment variables..."
+cat > .env << EOF
 DATABASE_PATH=business_leads.db
 HOST=0.0.0.0
 PORT=5000
@@ -42,8 +42,12 @@ MAX_RESULTS_PER_JOB=50
 JOB_TIMEOUT_SECONDS=1800
 STUCK_THRESHOLD_SECONDS=600
 EXPORT_DIR=exports
+
+# Authentication
+ADMIN_USERNAME=Hami
+ADMIN_PASSWORD=Yassin@010203
+REQUIRE_AUTH=True
 EOF
-fi
 
 # Create necessary directories
 echo "📁 Creating directories..."
@@ -103,8 +107,12 @@ server {
 EOF
 
 # Enable Nginx site
-sudo ln -sf /etc/nginx/sites-available/business-scraper /etc/nginx/sites-enabled/
+# Remove default site (aggressively)
 sudo rm -f /etc/nginx/sites-enabled/default
+sudo rm -f /etc/nginx/sites-available/default
+
+# Link and restart
+sudo ln -sf /etc/nginx/sites-available/business-scraper /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 
